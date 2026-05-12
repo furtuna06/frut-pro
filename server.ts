@@ -7,8 +7,10 @@ import net from 'net';
 import axios from 'axios';
 import nodemailer from 'nodemailer';
 import mongoose from 'mongoose';
+import cors from 'cors';
 
 const app = express();
+app.use(cors()); // Enable CORS for all routes
 const defaultPort = 3000;
 
 const portArgFromProcess = (() => {
