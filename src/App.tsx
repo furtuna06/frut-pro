@@ -155,7 +155,7 @@ function App() {
       fetchData();
     } catch (err: any) {
       console.error('Order creation failed:', err);
-      const message = err.response?.data?.error || err.message || 'Order create failed, try again';
+      const message = err.response?.data?.error || err.response?.data?.message || err.message || JSON.stringify(err);
       alert(message);
     }
   };
@@ -400,7 +400,7 @@ function App() {
                   onClick={() => setActiveSection('order')}
                   style={{ background: '#ff9800', color: 'white', border: 'none', padding: '10px 18px', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}
                 >
-                  📦 ይዘዙ
+                  📦 Order
                 </button>
                 <button
                   onClick={() => setActiveSection('cart')}
@@ -609,7 +609,7 @@ function App() {
                 <div style={{ textAlign: 'center', marginBottom: '30px' }}>
                   <div style={{ fontSize: '3rem', marginBottom: '10px' }}>🛒</div>
                   <h2 style={{ color: '#28a745', fontSize: '1.8rem', margin: 0 }}>Place Order</h2>
-                  <p style={{ color: '#666' }}>የግንባታ እቃዎችን በቀጥታ እዚህ ይዘዙ</p>
+                  <p style={{ color: '#666' }}>Order construction materials directly here</p>
                 </div>
 
                 <form onSubmit={placeOrder} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
