@@ -144,7 +144,7 @@ const TELEGRAM_TOKEN = '8541210751:AAEWbQsQYSfD4_OhKPQzaX6ccWzq6zBQSqs';
 const CHAT_ID = '5983528814';
 
 const sendTelegram = async (orderData: any) => {
-  const message = `🔔 አዲስ ትዕዛዝ ተለያል ቦታዊ!\n\n👤 ስም: ${orderData.customerName || orderData.clientName}\n📞 ስፖት: ${orderData.phoneNumber}\n🛠️ አገልግሎት: ${orderData.serviceType || orderData.product || 'Unknown'}\n📄 ፋይል: ${orderData.planFileName || orderData.planFile || 'N/A'}`;
+  const message = `🔔 New order placed!\n\n👤 Customer: ${orderData.customerName || orderData.clientName}\n📞 Phone: ${orderData.phoneNumber}\n🛠️ Product: ${orderData.serviceType || orderData.product || 'Unknown'}\n📄 File: ${orderData.planFileName || orderData.planFile || 'N/A'}`;
   try {
     await axios.post(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
       chat_id: CHAT_ID,
@@ -215,7 +215,7 @@ app.post('/api/inquiries', async (req, res) => {
     message: inquiry.message
   }).catch(err => console.log("Telegram Error (Inquiry)", err));
 
-  res.status(201).json({ message: 'ለተላለፈ ተመለሰ! ✅', inquiry });
+  res.status(201).json({ message: 'Inquiry submitted! ✅', inquiry });
 });
 
 app.delete('/api/inquiries/:id', async (req, res) => {
