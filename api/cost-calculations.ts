@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import multer from 'multer';
-import path from 'path';
+import axios from 'axios';
+import nodemailer from 'nodemailer';
 
 // MongoDB Connection
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/yared_engineer';
@@ -8,6 +9,45 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/yared_
 const connectDB = async () => {
   if (mongoose.connection.readyState >= 1) return;
   await mongoose.connect(MONGODB_URI);
+};
+
+// Telegram Config
+const TELEGRAM_TOKEN = '8541210751:AAEWbQsQYSfD4_OhKPQzaX6ccWzq6zBQSqs';
+const CHAT_ID = '5983528814';
+
+const sendTelegram = async (orderData: any) => {
+  const message = `🔔 አዲስ ትዕዛዝ ተለያል ቦታዊ!\n\n👤 ስም: ${orderData.customerName || orderData.clientName}\n📞 ስፖት: ${orderData.phoneNumber}\n🛠️ አገልግሎት: ${orderData.serviceType || 'Cost Calculation'}\n📄 ፋይል: ${orderData.planFile || 'N/A'}`;
+  try {
+    await axios.post(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
+      chat_id: CHAT_ID,
+      text: message
+    });
+  } catch (err) {
+    console.error("Telegram error:", err);
+  }
+};
+
+const sendEmail = async (orderData: any) => {
+  let transporter = nodemailer.createTransporter({
+    service: 'gmail',
+    auth: {
+      user: 'hagezomfurtuna@gmail.com',
+      pass: 'adki kdwx quqc uqro' // App Password
+    }
+  });
+
+  let mailOptions = {
+    from: 'hagezomfurtuna@gmail.com',
+    to: 'hagezomfurtuna@gmail.com',
+    subject: `New service request: ${orderData.serviceType || 'Cost Calculation'}`,
+    text: `New service request details:\n\nCustomer Name: ${orderData.clientName}\nPhone: ${orderData.phoneNumber}\nEmail: ${orderData.email}\nService: ${orderData.serviceType}\nPlan file: ${orderData.planFile || 'N/A'}`
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+  } catch (err) {
+    console.error("Email error:", err);
+  }
 };
 
 // CostCalculation Schema
@@ -67,6 +107,10 @@ export default async function handler(req: any, res: any) {
 
         const calc = new CostCalculation(calcData);
         await calc.save();
+
+        // Send notifications
+        await sendTelegram(calcData).catch(err => console.log("Telegram Error (Cost Calc)", err));
+        await sendEmail(calcData).catch(err => console.log("Email Error (Cost Calc)", err));
 
         return res.status(201).json({ message: 'Cost calculation submitted successfully', calc });
       });
