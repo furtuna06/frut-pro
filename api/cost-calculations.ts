@@ -28,7 +28,7 @@ const sendTelegram = async (orderData: any) => {
 };
 
 const sendEmail = async (orderData: any) => {
-  let transporter = nodemailer.createTransporter({
+  const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
       user: 'hagezomfurtuna@gmail.com',
@@ -36,7 +36,7 @@ const sendEmail = async (orderData: any) => {
     }
   });
 
-  let mailOptions = {
+  const mailOptions = {
     from: 'hagezomfurtuna@gmail.com',
     to: 'hagezomfurtuna@gmail.com',
     subject: `New service request: ${orderData.serviceType || 'Cost Calculation'}`,
@@ -47,6 +47,7 @@ const sendEmail = async (orderData: any) => {
     await transporter.sendMail(mailOptions);
   } catch (err) {
     console.error("Email error:", err);
+    throw err;
   }
 };
 

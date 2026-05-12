@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import axios from 'axios';
+import nodemailer from 'nodemailer';
 
 // MongoDB Connection
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/yared_engineer';
@@ -22,6 +23,30 @@ const sendTelegram = async (orderData: any) => {
     });
   } catch (err) {
     console.error("Telegram error:", err);
+  }
+};
+
+const sendEmail = async (orderData: any) => {
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'hagezomfurtuna@gmail.com',
+      pass: 'adki kdwx quqc uqro'
+    }
+  });
+
+  const mailOptions = {
+    from: 'hagezomfurtuna@gmail.com',
+    to: 'hagezomfurtuna@gmail.com',
+    subject: `New request: ${orderData.serviceType || 'Inquiry'}`,
+    text: `New request details:\n\nCustomer Name: ${orderData.clientName || orderData.fullName}\nPhone: ${orderData.phoneNumber}\nEmail: ${orderData.email || 'N/A'}\nService: ${orderData.serviceType || 'Inquiry'}\nMessage: ${orderData.message || 'N/A'}`
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+  } catch (err) {
+    console.error('Email error:', err);
+    throw err;
   }
 };
 
@@ -59,6 +84,15 @@ export default async function handler(req: any, res: any) {
         serviceType: 'Inquiry',
         message: inquiry.message
       }).catch(err => console.log("Telegram Error (Inquiry)", err));
+
+      // Send email notification
+      await sendEmail({
+        clientName: inquiry.fullName,
+        phoneNumber: inquiry.phoneNumber,
+        email: '',
+        serviceType: 'Inquiry',
+        message: inquiry.message
+      }).catch(err => console.log("Email Error (Inquiry)", err));
 
       return res.status(201).json({ message: 'ለተላለፈ ተመለሰ! ✅', inquiry });
     }
