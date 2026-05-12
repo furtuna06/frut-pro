@@ -4,18 +4,23 @@ import mongoose from 'mongoose';
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/yared_engineer';
 
 const connectDB = async () => {
-  if (mongoose.connections[0].readyState) return;
+  if (mongoose.connection.readyState >= 1) return;
   await mongoose.connect(MONGODB_URI);
 };
 
-// Inquiry Schema
-const inquirySchema = new mongoose.Schema({
-  fullName: String,
-  phoneNumber: String,
-  message: String,
-  date: { type: Date, default: Date.now }
-});
-const Inquiry = mongoose.model('Inquiry', inquirySchema);
+// Inquiry Schema - Check if model exists to avoid redefinition
+let Inquiry: any;
+try {
+  Inquiry = mongoose.model('Inquiry');
+} catch {
+  const inquirySchema = new mongoose.Schema({
+    fullName: String,
+    phoneNumber: String,
+    message: String,
+    date: { type: Date, default: Date.now }
+  });
+  Inquiry = mongoose.model('Inquiry', inquirySchema);
+}
 
 export default async function handler(req: any, res: any) {
   try {
@@ -41,6 +46,6 @@ export default async function handler(req: any, res: any) {
     return res.status(405).json({ error: 'Method not allowed' });
   } catch (error) {
     console.error('API Error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: 'Internal server error' });
   }
 }
